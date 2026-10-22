@@ -1,11 +1,6 @@
 """
 改进版CausalGNNClues包装器
-集成所有改进模块：
-1. 混合编码器 (HybridEncoder) - 文本+数值+符号
-2. 序损失 (OrdinalRegressionLoss)
-3. 任务自适应Dropout
-4. 数值感知对比学习
-5. 任务嵌入与Adapter
+集成所有改进模块：混合编码器 (HybridEncoder) - 文本+数值+符号 序损失 (OrdinalRegressionLoss) 任务自适应Dropout 数值感知对比学习 任务嵌入与Adapter
 """
 
 import torch
@@ -101,7 +96,7 @@ class ImprovedCausalGNNClues(BaseCausalGNNClues):
         self.use_task_embedding = use_task_embedding
         self.use_task_adapter = use_task_adapter
         
-        # 1. 混合编码器初始化
+        # 混合编码器初始化
         if self.use_hybrid_encoder:
             if self.use_symbolic_encoder:
                 self.hybrid_encoder = HybridEncoderWithSymbolic(
@@ -117,7 +112,7 @@ class ImprovedCausalGNNClues(BaseCausalGNNClues):
                 )
                 print(f"[ImprovedCausalGNN] 已启用混合编码器 (文本+数值)")
         
-        # 2. 任务类型映射加载 (含 Point 1 & V55 JSON 兼容逻辑)
+        # 任务类型映射加载 (含 Point 1 & V55 JSON 兼容逻辑)
         self.task_type_map = {}
         self.ordinal_tasks = {}
         
@@ -138,7 +133,7 @@ class ImprovedCausalGNNClues(BaseCausalGNNClues):
             except Exception as e:
                 print(f"[ImprovedCausalGNN] ⚠️ 加载任务类型映射失败: {e}")
         
-        # 3. 初始化序损失
+        # 初始化序损失
         if use_ordinal_loss and real_task_details_json and os.path.exists(real_task_details_json):
             self._initialize_ordinal_losses(
                 real_task_details_json, 
@@ -146,14 +141,14 @@ class ImprovedCausalGNNClues(BaseCausalGNNClues):
                 ordinal_loss_beta
             )
         
-        # 4. 任务自适应Dropout
+        # 任务自适应Dropout
         if self.use_adaptive_dropout:
             self.dropout_controller = TaskAdaptiveDropout(default_dropout=0.15)
             if task_type_json:
                 initialize_task_dropouts(self.dropout_controller, task_type_json)
             print(f"[ImprovedCausalGNN] 已启用任务自适应Dropout")
         
-        # 5. 数值感知对比学习
+        # 数值感知对比学习
         if self.use_numerical_contrastive:
             self.numerical_contrastive_loss = NumericalContrastiveLoss(
                 temperature=numerical_contrastive_temp,
@@ -161,14 +156,14 @@ class ImprovedCausalGNNClues(BaseCausalGNNClues):
             )
             print(f"[ImprovedCausalGNN] 已启用数值感知对比学习")
         
-        # 6. 跨任务对比学习
+        # 跨任务对比学习
         if self.use_task_contrastive:
             self.task_contrastive_loss = TaskContrastiveLoss(
                 temperature=task_contrastive_temp
             )
             print(f"[ImprovedCausalGNN] 已启用跨任务对比学习")
         
-        # 7. 任务嵌入与Adapter
+        # 任务嵌入与Adapter
         if self.use_task_embedding or self.use_task_adapter:
             self.task_embedding_module = TaskEmbeddingWithAdapter(
                 num_tasks=41,
@@ -288,11 +283,11 @@ class ImprovedCausalGNNClues(BaseCausalGNNClues):
                 if has_features:
                     use_hybrid = True
         
-        # Point 8: 激活 Tic-Tac-Toe
+        # 激活 Tic-Tac-Toe
         if self.use_hybrid_encoder and 'tic-tac-toe' in task_name:
             use_hybrid = True
             
-        # Point 9: 激活 Driving Championship
+        # 激活 Driving Championship
         if self.use_hybrid_encoder and 'driving-championship' in task_name:
             use_hybrid = True
 
@@ -321,23 +316,23 @@ class ImprovedCausalGNNClues(BaseCausalGNNClues):
         else:
             sample_embed = self.encode_text(input_ids, attention_mask, token_type_ids)
         
-        # 2. 应用任务嵌入和Adapter
+        # 应用任务嵌入和Adapter
         if self.use_task_embedding or self.use_task_adapter:
             sample_embed = self.task_embedding_module(sample_embed, task_name)
         
-        # 3. 应用任务自适应Dropout
+        # 应用任务自适应Dropout
         if self.use_adaptive_dropout and self.training:
             task_type = self.task_type_map.get(task_name, 'semantic')
             self.dropout_controller.set_task_dropout(task_name, task_type)
             sample_embed = self.dropout_controller(sample_embed, task_name)
         
-        # 4. 获取DAG (支持消融: attribute-level off 时移除边)
+        # 获取DAG (支持消融: attribute-level off 时移除边)
         dag = self.dag_per_task.get(task_name, None)
         if dag is None:
             raise ValueError(f"Task {task_name} not found in dag_per_task")
         ablation_dag = self._get_ablation_dag(task_name) if hasattr(self, '_use_attribute_level') else dag
 
-        # 5. DAG Text Embed (一次性编码)
+        # DAG Text Embed (一次性编码)
         if any(n.text_embed is None for n in dag.nodes):
             texts = [n.text for n in dag.nodes]
             with torch.no_grad():
@@ -400,8 +395,7 @@ class ImprovedCausalGNNClues(BaseCausalGNNClues):
             node_logits_list.append(node_logits_b)
         node_logits_batch = torch.stack(node_logits_list, dim=0)
         
-        # 8. Zero-Shot Readout (V53 的 GNN 增强逻辑)
-        # 这里保留 V53/V55 的核心逻辑：TopK 节点增强
+        # Zero-Shot Readout 
         k = max(1, int(len(dag.nodes) * 0.5)) 
         
         topk_values, topk_indices = torch.topk(node_logits_batch, k, dim=1)
