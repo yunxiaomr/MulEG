@@ -1,8 +1,3 @@
-"""
-DAG融合策略模块
-将解释性DAG（手动构建的任务级DAG）与统计DAG（基于数据的标签级DAG）进行融合
-"""
-
 import numpy as np
 import torch
 from typing import Dict, List, Optional, Tuple
@@ -13,7 +8,7 @@ class DAGFusion:
     DAG融合策略
     
     融合方式：
-    1. 解释性DAG: 人工定义的任务级概念/规则节点 (如 blood_pressure → risk_high)
+    1. 解释性DAG: 任务级概念/规则节点 (如 blood_pressure → risk_high)
     2. 统计DAG: 数据驱动的标签级节点 (如 yes → no)
     
     融合策略：
@@ -297,11 +292,11 @@ class DAGFusion:
 
 def load_explain_dag(task_name: str, manual_dag_file: str) -> Optional[Dict]:
     """
-    加载手动构建的解释性DAG
+    加载解释性DAG
     
     Args:
         task_name: 任务名称
-        manual_dag_file: 手动DAG文件路径
+        manual_dag_file: DAG文件路径
         
     Returns:
         解释性DAG字典,如果不存在则返回None
