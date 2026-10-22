@@ -1,10 +1,9 @@
 ## MulEG: Multi-Level Explanation-Guided Feature Attribute Graph for Zero-Shot Tabular Classification
 
-[![Explanation](https://img.shields.io/badge/Natural Language Explanation-blue)](https://github.com/)
-[![Structured](https://img.shields.io/badge/Structured %20Data-pink)](https://github.com/)
-[![ZeroShot](https://img.shields.io/badge/Zero--Shot_%20Learning-orige)](https://github.com/)
-[![Python](https://img.shields.io/badge/Python-3.9+-blue)](https://www.python.org/)
-
+[![Natural Language Explanation](https://img.shields.io/badge/Natural_Language_Explanation-blue)](https://github.com/)
+[![Structured Data](https://img.shields.io/badge/Structured_Data-pink)](https://github.com/)
+[![Zero-Shot Learning](https://img.shields.io/badge/Zero--Shot_Learning-orange)](https://github.com/)
+[![Python](https://img.shields.io/badge/Python-3.9%2B-blue?logo=python&logoColor=white)](https://www.python.org/)
 
 ## Overview
 
