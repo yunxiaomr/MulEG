@@ -13,12 +13,11 @@ from typing import Optional, Dict, List, Tuple
 class DAGRegularization(nn.Module):
     """
     DAG正则化损失
-    
-    包含以下约束：
+    约束：
     1. DAG约束：确保有向无环图性质
     2. 稀疏性约束：鼓励稀疏的边连接
     3. 平滑性约束：相邻节点的边权应相似
-    4. 解释性一致性：与人工定义的DAG结构一致
+    4. 解释性一致性：与定义的DAG结构一致
     5. 因果GNN正则：节点嵌入的因果一致性
     """
     
@@ -113,13 +112,7 @@ class DAGRegularization(nn.Module):
     def compute_dag_constraint(self, edge_weights: torch.Tensor) -> torch.Tensor:
         """
         计算DAG约束损失
-        
         目标：确保图是有向无环图
-        
-        方法1 (trace): h(W) = tr(e^{W ⊙ W}) - d
-        方法2 (polynomial): h(W) = tr((I + |W|)^d) - d
-        
-        如果h(W) > 0，则存在环
         """
         N = edge_weights.size(0)
         
@@ -163,9 +156,7 @@ class DAGRegularization(nn.Module):
     def compute_sparsity_loss(self, edge_weights: torch.Tensor) -> torch.Tensor:
         """
         计算稀疏性损失
-        
         目标：鼓励大部分边权接近0
-        
         方法：L1正则 + 熵正则
         """
         # L1正则
@@ -189,9 +180,7 @@ class DAGRegularization(nn.Module):
     ) -> torch.Tensor:
         """
         计算平滑性损失
-        
         目标：相邻节点的出边权重应相似
-        
         方法：L_smooth = Σ_{i~j} ||W[i,:] - W[j,:]||²
         """
         N = edge_weights.size(0)
@@ -217,9 +206,7 @@ class DAGRegularization(nn.Module):
     ) -> torch.Tensor:
         """
         计算解释性一致性损失
-        
         目标：统计DAG的边权应与解释性DAG一致
-        
         方法：
         1. 对于解释性DAG中存在的边，鼓励高权重
         2. 对于解释性DAG中不存在的边，鼓励低权重
@@ -248,9 +235,7 @@ class DAGRegularization(nn.Module):
     ) -> torch.Tensor:
         """
         计算因果GNN正则损失
-        
         目标：节点嵌入应反映因果结构
-        
         方法：
         1. 因果一致性：如果有边i→j，则h_i和h_j应相似
         2. 因果方向性：h_i应包含预测h_j的信息
@@ -301,8 +286,6 @@ class DAGRegularization(nn.Module):
 class CausalGNNRegularizer(nn.Module):
     """
     因果GNN专用正则化器
-    
-    基于NEW_method.md中的"因果GNN正则"部分
     """
     
     def __init__(
@@ -327,7 +310,6 @@ class CausalGNNRegularizer(nn.Module):
     ) -> Dict[str, torch.Tensor]:
         """
         计算因果GNN正则损失
-        
         Args:
             node_embeddings: GNN输出的节点嵌入 [batch, N, D]
             edge_weights: 边权矩阵 [N, N]
@@ -368,7 +350,6 @@ class CausalGNNRegularizer(nn.Module):
     ) -> torch.Tensor:
         """
         干预一致性：do(X_i) 应只影响 X_i 的后代节点
-        
         实现：通过邻接矩阵的传播路径判断
         """
         batch_size, N, D = node_embeddings.shape
@@ -412,7 +393,6 @@ class CausalGNNRegularizer(nn.Module):
     ) -> torch.Tensor:
         """
         反事实一致性：相同标签的样本应有相似的因果路径
-        
         实现：同标签样本的节点嵌入应在关键节点上一致
         """
         batch_size, N, D = node_embeddings.shape
