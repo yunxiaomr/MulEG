@@ -1,5 +1,6 @@
 # MulEG
-[EMNLP2026 Findings] MulEG: Multi-Level Explanation-Guided Feature Attribute Graph for Zero-Shot Tabular Classification
+[EMNLP2026 Findings] 
+MulEG: Multi-Level Explanation-Guided Feature Attribute Graph for Zero-Shot Tabular Classification
 
 
 ## Overview
@@ -10,7 +11,7 @@ Zero-shot classification of structured tabular data aims to recognize classes th
 
 - **Multi-level textual explanations** (sample-, attribute-, and label-level) that preserve the intrinsic row-column topological structure of tables;
 - **A feature attribute graph** with a differentiable message-passing mechanism that captures fine-grained dependencies among heterogeneous features;
-- A **Structural Causal Model (SCM)** inspired view linking tabular features and target labels.
+- A **Structural Causal Model** inspired view linking tabular features and target labels.
 
 Experiments on sixteen tabular tasks demonstrate that MulEG significantly outperforms state-of-the-art baselines across semantic, mixed, numerical, ordinal, and symbolic domains.
 
