@@ -7,12 +7,6 @@ from typing import Dict, List, Optional, Tuple
 
 def build_stats_driven_dag(task_name, task_data, tokenizer, encoder, device, edge_keep_ratio=0.3, use_full_formula=True, use_field_level=False, field_weight_mode='uniform'):
     """
-    统计驱动的任务级DAG重估
-    - 完整版: 基于样本→原型相似度计算边权 w_{i→j} = avg(max_cos(样本_i, 原型_j))
-    - 简化版: 直接计算标签间相似度 w_{i→j} = cos(label_i, label_j)
-    - 字段级: 使用字段加权相似度计算边权
-    - 返回可用于CausalDAG构建的dict结构
-    
     Args:
         task_name: 任务名称
         task_data: 任务数据，包含'train'/'dev'/'test' splits和'target_key'
@@ -43,7 +37,6 @@ def build_stats_driven_dag(task_name, task_data, tokenizer, encoder, device, edg
         label_emb = outputs.pooler_output if hasattr(outputs, 'pooler_output') and outputs.pooler_output is not None else outputs.last_hidden_state[:, 0]
     label_emb = label_emb / (label_emb.norm(dim=-1, keepdim=True) + 1e-8)
 
-    # 🔥 字段级DAG生成（新功能）
     if use_field_level:
         from models.causal_graph.field_similarity import FieldLevelSimilarity
         
@@ -76,7 +69,7 @@ def build_stats_driven_dag(task_name, task_data, tokenizer, encoder, device, edg
     
     # 计算边权矩阵（标签级）
     if not use_field_level and use_full_formula:
-        # 🎯 完整版公式: w_{i→j} = (1/|X_i|) Σ_{x∈X_i} max_{c∈C_j} cos(h_i(x), p_j(c))
+        #  完整版公式: w_{i→j} = (1/|X_i|) Σ_{x∈X_i} max_{c∈C_j} cos(h_i(x), p_j(c))
         # 由于我们在DAG构建阶段，这里用训练样本作为X_i的代理
         sim_ll = np.zeros((len(labels), len(labels)))
         
@@ -124,7 +117,7 @@ def build_stats_driven_dag(task_name, task_data, tokenizer, encoder, device, edg
             # 如果没有训练样本，回退到简化版
             sim_ll = (label_emb @ label_emb.t()).detach().cpu().numpy()
     elif not use_field_level:
-        # 🔹 简化版: 直接计算标签间相似度
+        # 直接计算标签间相似度
         sim_ll = (label_emb @ label_emb.t()).detach().cpu().numpy()
     
     np.fill_diagonal(sim_ll, -np.inf)
