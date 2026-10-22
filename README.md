@@ -1,7 +1,7 @@
 # MulEG: Multi-Level Explanation-Guided Feature Attribute Graph for Zero-Shot Tabular Classification
 
 [![Paper Status](https://img.shields.io/badge/Status-EMNLP--2026--Findings-orange)](https://github.com/)
-[![Python](https://img.shields.io/badge/Python-3.9.15-blue)](https://www.python.org/)
+[![Python](https://img.shields.io/badge/Python-3.9+-blue)](https://www.python.org/)
 
 
 ## Overview
