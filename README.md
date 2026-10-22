@@ -26,7 +26,7 @@ Experiments on sixteen tabular tasks demonstrate that MulEG significantly outper
 ```
 .
 ├── models/
-│   ├── causal_gnn/          # Core model: GNN wrapper, hybrid encoder, symbolic encoder, losses
+│   ├── causal_gnn/          # GNN wrapper, hybrid encoder, symbolic encoder, losses
 │   ├── causal_graph/        # Task-level DAG construction and regularization
 │   └── guided_bert_clues.py # Explanation-guided BERT encoder
 ├── experiments/
