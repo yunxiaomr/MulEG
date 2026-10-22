@@ -1,8 +1,3 @@
-"""
-解释一致性修正模块 (Guideline Alignment)
-确保统计DAG与任务Guidelines/解释性DAG保持一致
-"""
-
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -13,9 +8,6 @@ from typing import Dict, List, Optional, Tuple
 class GuidelineAlignment(nn.Module):
     """
     解释一致性修正
-    
-    目标：确保统计驱动的DAG边权与人工定义的Guidelines保持一致
-    
     方法：
     1. 硬约束：强制某些边必须存在/不存在
     2. 软约束：通过损失函数鼓励某些边的存在/强度
@@ -47,7 +39,6 @@ class GuidelineAlignment(nn.Module):
     ) -> Tuple[torch.Tensor, torch.Tensor]:
         """
         计算对齐后的边权矩阵和对齐损失
-        
         Args:
             stats_edge_matrix: 统计DAG的边权矩阵 [N, N]
             explain_edge_matrix: 解释性DAG的边权矩阵 [N, N], 可选
@@ -80,7 +71,6 @@ class GuidelineAlignment(nn.Module):
     ) -> Tuple[torch.Tensor, torch.Tensor]:
         """
         硬约束对齐：强制统计DAG遵循解释性DAG的结构
-        
         规则：
         1. 如果解释性DAG中存在边(i→j)，则保留统计DAG中的对应边
         2. 如果解释性DAG中不存在边(i→j)，则删除统计DAG中的对应边
@@ -126,7 +116,6 @@ class GuidelineAlignment(nn.Module):
     ) -> Tuple[torch.Tensor, torch.Tensor]:
         """
         语义对齐：基于节点语义相似度调整边权
-        
         思路：
         1. 如果两个节点语义相似度高，则更倾向于保留统计DAG的边
         2. 如果语义相似度低，则更倾向于遵循解释性DAG
@@ -157,8 +146,7 @@ class GuidelineAlignment(nn.Module):
     ) -> torch.Tensor:
         """
         计算结构一致性损失
-        
-        目标：确保DAG满足以下性质：
+        目标：
         1. 有向无环 (DAG property)
         2. 稀疏性 (Sparsity)
         3. 与解释性边一致 (Guideline consistency)
@@ -206,11 +194,6 @@ class GuidelineAlignment(nn.Module):
 
 
 class GuidelineEncoder(nn.Module):
-    """
-    Guideline编码器
-    将文本形式的Guidelines编码为向量表示，用于对齐
-    """
-    
     def __init__(self, encoder, tokenizer):
         """
         Args:
@@ -280,8 +263,6 @@ class GuidelineEncoder(nn.Module):
 
 def load_task_guidelines(task_name: str, guidelines_file: str) -> Optional[List[str]]:
     """
-    加载任务的Guidelines文本
-    
     Args:
         task_name: 任务名称
         guidelines_file: Guidelines文件路径
@@ -304,6 +285,6 @@ def load_task_guidelines(task_name: str, guidelines_file: str) -> Optional[List[
         else:
             return None
     except Exception as e:
-        print(f"⚠️  加载Guidelines失败: {e}")
+        print(f"加载Guidelines失败: {e}")
         return None
 
