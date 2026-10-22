@@ -1,10 +1,3 @@
-"""
-字段级相似度计算模块 (Field-Level Similarity Module)
-
-实现方法来自: NEW_mothed.md 第4节
-用于统计驱动DAG的增强版构建
-"""
-
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -16,8 +9,6 @@ from collections import defaultdict
 class FieldLevelSimilarity(nn.Module):
     """
     字段级相似度计算模块
-    
-    核心功能:
     1. 字段化编码: 对每个字段单独编码
     2. 类内原型: 计算每个标签在每个字段上的原型
     3. 字段重要性: 计算或学习字段权重
@@ -113,9 +104,6 @@ class FieldLevelSimilarity(nn.Module):
     ) -> Dict[str, Dict[str, torch.Tensor]]:
         """
         计算类内原型 (Label-specific Prototype)
-        
-        公式: p_{j,k} = (1/|X_j^{(k)}|) Σ_{x∈X_j} u_k(x)
-        
         Args:
             samples: 样本列表，每个样本包含字段和标签
             field_names: 字段名称列表
@@ -182,9 +170,6 @@ class FieldLevelSimilarity(nn.Module):
     ) -> np.ndarray:
         """
         基于信息增益的字段权重
-        
-        公式: γ_k = IG(f_k; Y) / Σ_{k'} IG(f_{k'}; Y)
-        
         Args:
             samples: 样本列表
             field_names: 字段名称列表
@@ -285,9 +270,6 @@ class FieldLevelSimilarity(nn.Module):
     ) -> float:
         """
         样本-标签字段加权相似度
-        
-        公式: sim(x,j) = Σ_{k=1}^{K} γ_k · cos(u_k(x), p_{j,k})
-        
         Args:
             sample: 输入样本
             label: 目标标签
@@ -343,9 +325,6 @@ def compute_task_edge_weights_field_level(
 ) -> Dict:
     """
     使用字段级相似度计算任务的边权
-    
-    这是 build_stats_driven_dag 的增强版，集成字段级方法
-    
     公式: w_{i→j}^{(T)} = (1/|X_i|) Σ_{x∈X_i} sim(x,j)
           其中 sim(x,j) = Σ_k γ_k · cos(u_k(x), p_{j,k})
     
@@ -373,7 +352,6 @@ def compute_task_edge_weights_field_level(
     train_samples = task_data.get('train', [])
     
     if len(labels) == 0 or len(train_samples) == 0:
-        # 回退到简单版本
         return {
             "nodes": [],
             "edges": [],
